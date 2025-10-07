@@ -36,40 +36,23 @@ class WMLParser(ContentHandler):
                     self._paragraph_element.children.append(self._current_node_rep)
             case "table":
                 pass
-            case "strong":
+            case "strong" | "u" | "b" | "i" | "big" | "small":
                 if self._paragraph_element and self.inner_text:
                     self._current_node_rep.children.append(self.inner_text)
-                self._current_node_rep = self._process_strong_html_node(self._paragraph_element)
-                if self._paragraph_element:
-                    self._paragraph_element.children.append(self._current_node_rep)
-            case "u":
-                if self._paragraph_element and self.inner_text:
-                    self._current_node_rep.children.append(self.inner_text)
-                self._current_node_rep = UnderlineTextElement(self._paragraph_element)
-                if self._paragraph_element:
-                    self._paragraph_element.children.append(self._current_node_rep)
-            case "b":
-                if self._paragraph_element and self.inner_text:
-                    self._current_node_rep.children.append(self.inner_text)
-                self._current_node_rep = self._process_bold_html_node(self._paragraph_element)
-                if self._paragraph_element:
-                    self._paragraph_element.children.append(self._current_node_rep)
-            case "i":
-                if self._paragraph_element and self.inner_text:
-                    self._current_node_rep.children.append(self.inner_text)
-                self._current_node_rep = self._process_italic_html_node(self._paragraph_element)
-                if self._paragraph_element:
-                    self._paragraph_element.children.append(self._current_node_rep)
-            case "big":
-                if self._paragraph_element and self.inner_text:
-                    self._current_node_rep.children.append(self.inner_text)
-                self._current_node_rep = self._process_big_html_node(self._paragraph_element)
-                if self._paragraph_element:
-                    self._paragraph_element.children.append(self._current_node_rep)
-            case "small":
-                if self._paragraph_element and self.inner_text:
-                    self._current_node_rep.children.append(self.inner_text)
-                self._current_node_rep = self._process_small_html_node(self._paragraph_element)
+
+                if name == "strong":
+                    self._current_node_rep = StrongTextHtmlElement(self._paragraph_element)
+                elif name == "u":
+                    self._current_node_rep = UnderlineTextElement(self._paragraph_element)
+                elif name == "b":
+                    self._current_node_rep = BoldTextHtmlElement(self._paragraph_element)
+                elif name == "i":
+                    self._current_node_rep = ItalicTextElement(self._paragraph_element)
+                elif name == "big":
+                    self._current_node_rep = BigTextHtmlElement(self._paragraph_element)
+                elif name == "small":
+                    self._current_node_rep = SmallTextHtmlElement(self._paragraph_element)
+
                 if self._paragraph_element:
                     self._paragraph_element.children.append(self._current_node_rep)
             case "anchor":
@@ -118,21 +101,6 @@ class WMLParser(ContentHandler):
     
     def _process_a_node(self, parent: ParagraphHtmlElement, attrs):
         return AHtmlElement(attrs.get("href", ""), parent=parent)
-    
-    def _process_small_html_node(self, parent:ParagraphHtmlElement):
-        return SmallTextHtmlElement(parent)
-    
-    def _process_big_html_node(self, parent:ParagraphHtmlElement):
-        return BigTextHtmlElement(parent)
-    
-    def _process_italic_html_node(self, parent:ParagraphHtmlElement):
-        return ItalicTextElement(parent)
-
-    def _process_strong_html_node(self, parent:ParagraphHtmlElement):
-        return StrongTextHtmlElement(parent)
-
-    def _process_bold_html_node(self, parent:ParagraphHtmlElement):
-        return BoldTextHtmlElement(parent)
 
     def endElement(self, name):
         if self.current_element == name and self.inner_text:
