@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+ <!DOCTYPE wml PUBLIC "-//PHONE.COM//DTD WML 1.1//EN"
+    "http://www.pagina.com" >
+ <wml>
+   <card id="carta1" title="Carta">
+     <p mode="wrap">Un ejemplo para entrar a página.</p>
+   </card>
+ </wml>
