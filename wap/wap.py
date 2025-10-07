@@ -39,6 +39,7 @@ class WMLParser(ContentHandler):
             case "strong" | "u" | "b" | "i" | "big" | "small":
                 if self._paragraph_element and self.inner_text:
                     self._current_node_rep.children.append(self.inner_text)
+                    self.inner_text = ""
 
                 if name == "strong":
                     self._current_node_rep = StrongTextHtmlElement(self._paragraph_element)

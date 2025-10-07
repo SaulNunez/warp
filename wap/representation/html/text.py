@@ -3,8 +3,8 @@ from typing import List, Union
 from wap.representation.markup import Card, HtmlElement
 
 class TextContent(HtmlElement):
-    def __init__(self, content):
-        super().__init__()
+    def __init__(self, parent, content: str = ""):
+        super().__init__(parent)
         self.content = content
 
 class TextHtmlSubElement(TextContent):

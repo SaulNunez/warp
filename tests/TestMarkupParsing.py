@@ -39,6 +39,7 @@ class TestMarkupParsing(unittest.TestCase):
             self.assertEqual(len(paragraph.children), 7)
             self.assertEqual(paragraph.children[0], "These tags allow elements to have different font styles, but font is decided by the device:")
             self.assertIsInstance(paragraph.children[1], BoldTextHtmlElement)
+            self.assertEqual(paragraph.children[1].content, "Bold text")
             self.assertIsInstance(paragraph.children[2], BigTextHtmlElement)
             self.assertIsInstance(paragraph.children[3], SmallTextHtmlElement)
             self.assertIsInstance(paragraph.children[4], ItalicTextElement)
