@@ -1,7 +1,7 @@
 import unittest
 import xml
 
-from wap.representation.html.text import ModeTypes, ParagraphHtmlElement
+from wap.representation.html.text import BigTextHtmlElement, BoldTextHtmlElement, ItalicTextElement, ModeTypes, ParagraphHtmlElement, SmallTextHtmlElement, StrongTextHtmlElement, UnderlineTextElement
 from wap.wap import WMLParser
 
 
@@ -23,5 +23,27 @@ class TestMarkupParsing(unittest.TestCase):
             # Check correct object is returned
             self.assertTrue(isinstance(paragraph, ParagraphHtmlElement))
             self.assertTrue(paragraph.mode, ModeTypes.wrap)
+
+    def test_text_styling_page(self):
+        with open('./tests/text_styles.wml', 'r') as file:
+            parser = xml.sax.make_parser()
+            handler = WMLParser()
+            parser.setContentHandler(handler)
+            parser.parse(file)
+            card = handler.data.findCardById("card1")
+            self.assertIsNotNone(card)
+            self.assertEqual(card.title, "Text styles")
+            self.assertEqual(len(card.children), 1)
+            paragraph = card.children[0]
+            self.assertTrue(isinstance(paragraph, ParagraphHtmlElement))
+            self.assertEqual(len(paragraph.children), 7)
+            self.assertEqual(paragraph.children[0], "These tags allow elements to have different font styles, but font is decided by the device:")
+            self.assertIsInstance(paragraph.children[1], BoldTextHtmlElement)
+            self.assertIsInstance(paragraph.children[2], BigTextHtmlElement)
+            self.assertIsInstance(paragraph.children[3], SmallTextHtmlElement)
+            self.assertIsInstance(paragraph.children[4], ItalicTextElement)
+            self.assertIsInstance(paragraph.children[5], StrongTextHtmlElement)
+            self.assertIsInstance(paragraph.children[6], UnderlineTextElement)
+
 
 

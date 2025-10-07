@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+ <!DOCTYPE wml PUBLIC "-//PHONE.COM//DTD WML 1.1//EN"
+    "http://www.pagina.com" >
+ <wml>
+   <card id="card1" title="Text styles">
+     <p>
+      These tags allow elements to have different font styles, but font is decided by the device:
+      <b>Bold text</b>
+      <big>Big text</big>
+      <small>Small text</small>
+      <i>Italic text</i>
+      <strong>Strong text</strong>
+      <u>Undeline text</u>
+     </p>
+   </card>
+ </wml>

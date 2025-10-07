@@ -22,6 +22,7 @@ class BigTextHtmlElement(TextHtmlSubElement):
 class SmallTextHtmlElement(TextHtmlSubElement):
     pass
 
+
 class ItalicTextElement(TextHtmlSubElement):
     pass
 

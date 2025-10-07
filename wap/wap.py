@@ -1,7 +1,7 @@
 from xml.sax import ContentHandler
 
 from wap.representation.html.table import TableColumn, TableElement, TableRow
-from wap.representation.html.text import AHtmlElement, BigTextHtmlElement, BoldTextHtmlElement, ItalicTextElement, ParagraphHtmlElement, SmallTextHtmlElement, StrongTextHtmlElement, TextHtmlSubElement
+from wap.representation.html.text import AHtmlElement, BigTextHtmlElement, BoldTextHtmlElement, ItalicTextElement, ParagraphHtmlElement, SmallTextHtmlElement, StrongTextHtmlElement, TextHtmlSubElement, UnderlineTextElement
 from wap.representation.markup import Card, Deck, WMLElement
 from wap.representation.navigation import AnchorElement, GoElement, NoOpElement, PrevElement, RefreshElement
 
@@ -14,6 +14,7 @@ class WMLParser(ContentHandler):
         self._current_card: Card = None
         # Add current node shorthand to prevent having to hunt down current node
         self._current_node_rep: WMLElement = None
+        self._paragraph_element: ParagraphHtmlElement = None
         self.current_element: str = ""
         self.inner_text: str = ""
 
@@ -26,6 +27,51 @@ class WMLParser(ContentHandler):
             case "p":
                 self._current_node_rep = self._process_paragraph(attrs, self._current_card)
                 self._current_card.children.append(self._current_node_rep)
+                self._paragraph_element = self._current_node_rep
+            case "a":
+                if self._paragraph_element and self.inner_text:
+                    self._current_node_rep.children.append(self.inner_text)
+                self._current_node_rep = self._process_a_node(self._paragraph_element, attrs)
+                if self._paragraph_element:
+                    self._paragraph_element.children.append(self._current_node_rep)
+            case "table":
+                pass
+            case "strong":
+                if self._paragraph_element and self.inner_text:
+                    self._current_node_rep.children.append(self.inner_text)
+                self._current_node_rep = self._process_strong_html_node(self._paragraph_element)
+                if self._paragraph_element:
+                    self._paragraph_element.children.append(self._current_node_rep)
+            case "u":
+                if self._paragraph_element and self.inner_text:
+                    self._current_node_rep.children.append(self.inner_text)
+                self._current_node_rep = UnderlineTextElement(self._paragraph_element)
+                if self._paragraph_element:
+                    self._paragraph_element.children.append(self._current_node_rep)
+            case "b":
+                if self._paragraph_element and self.inner_text:
+                    self._current_node_rep.children.append(self.inner_text)
+                self._current_node_rep = self._process_bold_html_node(self._paragraph_element)
+                if self._paragraph_element:
+                    self._paragraph_element.children.append(self._current_node_rep)
+            case "i":
+                if self._paragraph_element and self.inner_text:
+                    self._current_node_rep.children.append(self.inner_text)
+                self._current_node_rep = self._process_italic_html_node(self._paragraph_element)
+                if self._paragraph_element:
+                    self._paragraph_element.children.append(self._current_node_rep)
+            case "big":
+                if self._paragraph_element and self.inner_text:
+                    self._current_node_rep.children.append(self.inner_text)
+                self._current_node_rep = self._process_big_html_node(self._paragraph_element)
+                if self._paragraph_element:
+                    self._paragraph_element.children.append(self._current_node_rep)
+            case "small":
+                if self._paragraph_element and self.inner_text:
+                    self._current_node_rep.children.append(self.inner_text)
+                self._current_node_rep = self._process_small_html_node(self._paragraph_element)
+                if self._paragraph_element:
+                    self._paragraph_element.children.append(self._current_node_rep)
             case "anchor":
                 self._current_node_rep = AnchorElement()
             case "go":
@@ -94,11 +140,12 @@ class WMLParser(ContentHandler):
                 self._current_card = None
             elif isinstance(self._current_node_rep, TextHtmlSubElement):
                 self._current_node_rep.content = self.inner_text
+            if name == "p":
+                self._paragraph_element = None
+        self.inner_text = ""
+        self.current_element = ""
 
     def characters(self, content):
         if self.current_element:
             self.inner_text += content.strip()
-        if self.current_element == "p":
-            self._current_node_rep.children.append(self.inner_text)
-        self.inner_text = ""
-        self.current_element = ""
+
