@@ -2,7 +2,7 @@
  <!DOCTYPE wml PUBLIC "-//PHONE.COM//DTD WML 1.1//EN"
     "http://www.pagina.com" >
  <wml>
-   <card id="card1" title="Table">
+   <card id="card_table" title="Table">
      <p>
       <table columns="3" align="LCR">
         <tr>

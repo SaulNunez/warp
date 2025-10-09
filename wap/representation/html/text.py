@@ -6,6 +6,12 @@ class TextContent(HtmlElement):
     def __init__(self, parent, content: str = ""):
         super().__init__(parent)
         self.content = content
+    
+    def __str__(self):
+        return self.content
+
+    def __repr__(self):
+        return f"TextContent('{self.content}')"
 
 class TextHtmlSubElement(TextContent):
     pass
@@ -30,8 +36,9 @@ class UnderlineTextElement(TextHtmlSubElement):
     pass
 
 class AHtmlElement(TextHtmlSubElement):
-    def __init__(self, content: str, href: str):
-        super().__init__(content)
+    # Accept href first and parent as keyword to match how parser constructs it
+    def __init__(self, href: str = "", parent=None):
+        super().__init__(parent)
         self.href = href
 
 class BreakHtmlElement(TextHtmlSubElement):
@@ -50,11 +57,12 @@ class ModeTypes(StrEnum):
     no_wrap = "no-wrap"
 
 class ParagraphHtmlElement(HtmlElement):
-    def __init__(self, children: List[Union[str, TextContent]] = [], align=AlignTypes.left, mode=ModeTypes.no_wrap, parent: Card = None):
+    def __init__(self, children: List[Union[str, TextContent]] = None, align=AlignTypes.left, mode=ModeTypes.no_wrap, parent: Card = None):
         super().__init__(parent)
         self.align = align
         self.mode = mode
-        self.children = children
+        # avoid mutable default across instances
+        self.children = [] if children is None else children
     
     def align_from_str(self, input: str):
         self.align = getattr(AlignTypes, input, AlignTypes.left)

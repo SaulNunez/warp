@@ -1,9 +1,12 @@
 from xml.sax import ContentHandler
 
 from wap.representation.html.table import TableColumn, TableElement, TableRow
-from wap.representation.html.text import AHtmlElement, BigTextHtmlElement, BoldTextHtmlElement, ItalicTextElement, ParagraphHtmlElement, SmallTextHtmlElement, StrongTextHtmlElement, TextHtmlSubElement, UnderlineTextElement
+from wap.representation.html.text import AHtmlElement, BigTextHtmlElement, BoldTextHtmlElement, \
+    ItalicTextElement, ParagraphHtmlElement, SmallTextHtmlElement, StrongTextHtmlElement, \
+    TextContent, UnderlineTextElement
 from wap.representation.markup import Card, Deck, WMLElement
-from wap.representation.navigation import AnchorElement, GoElement, NoOpElement, PrevElement, RefreshElement
+from wap.representation.navigation import AnchorElement, GoElement, NoOpElement, \
+    PrevElement, RefreshElement
 
 
 class WMLParser(ContentHandler):
@@ -17,6 +20,7 @@ class WMLParser(ContentHandler):
         self._paragraph_element: ParagraphHtmlElement = None
         self.current_element: str = ""
         self.inner_text: str = ""
+        self._table_element: TableElement = None
 
     def startElement(self, name, attrs):
         self.current_element = name
@@ -35,7 +39,19 @@ class WMLParser(ContentHandler):
                 if self._paragraph_element:
                     self._paragraph_element.children.append(self._current_node_rep)
             case "table":
-                pass
+                self._table_element = self._process_table(self._paragraph_element, attrs)
+                self._paragraph_element.children.append(self._table_element)
+                self._current_node_rep = self._table_element
+            case "tr":
+                if self._table_element:
+                    row = self._process_table_row(self._table_element)
+                    self._table_element.rows.append(row)
+                    self._current_node_rep = row
+            case "td":
+                if self._table_element:
+                    column = self._process_table_column(self._current_node_rep)
+                    self._table_element.rows[-1].columns.append(column)
+                    self._current_node_rep = column
             case "strong" | "u" | "b" | "i" | "big" | "small":
                 if self._paragraph_element and self.inner_text:
                     self._current_node_rep.children.append(self.inner_text)
@@ -71,7 +87,7 @@ class WMLParser(ContentHandler):
     def _process_paragraph(self, attrs, parent: Card):
         element = ParagraphHtmlElement(parent=parent)
         if "align" in attrs:
-            element.alignalign_from_str(attrs["align"])
+            element.align_from_str(attrs["align"])
         if "mode" in attrs:
             element.mode_from_str(attrs["mode"])
         return element
@@ -98,7 +114,7 @@ class WMLParser(ContentHandler):
         return TableRow(parent=parent)
     
     def _process_table(self, parent: ParagraphHtmlElement, attrs):
-        return TableElement(attrs.get("columns", 0), attrs.get("align", "L"), parent = parent)
+        return TableElement(attrs.get("columns", 0), attrs.get("align", "L"), parent)
     
     def _process_a_node(self, parent: ParagraphHtmlElement, attrs):
         return AHtmlElement(attrs.get("href", ""), parent=parent)
@@ -107,10 +123,15 @@ class WMLParser(ContentHandler):
         if self.current_element == name and self.inner_text:
             if self.current_element == "card":
                 self._current_card = None
-            elif isinstance(self._current_node_rep, TextHtmlSubElement):
+            elif isinstance(self._current_node_rep, TextContent):
                 self._current_node_rep.content = self.inner_text
+            elif self._table_element:
+                self._table_element = None
+
             if name == "p":
                 self._paragraph_element = None
+            elif name == "wml":
+                self._current_node_rep = None
         self.inner_text = ""
         self.current_element = ""
 

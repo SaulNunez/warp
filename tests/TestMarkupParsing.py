@@ -45,6 +45,24 @@ class TestMarkupParsing(unittest.TestCase):
             self.assertIsInstance(paragraph.children[4], ItalicTextElement)
             self.assertIsInstance(paragraph.children[5], StrongTextHtmlElement)
             self.assertIsInstance(paragraph.children[6], UnderlineTextElement)
+    
+    def test_table_parsing(self):
+        with open('./tests/table.wml', 'r') as file:
+            parser = xml.sax.make_parser()
+            handler = WMLParser()
+            parser.setContentHandler(handler)
+            parser.parse(file)
+            card = handler.data.findCardById("card_table")
+            self.assertIsNotNone(card)
+            self.assertEqual(len(card.children), 1)
+            paragraph = card.children[0]
+            self.assertEqual(len(paragraph.children), 1)
+            table = paragraph.children[0]
+            self.assertEqual(len(table.rows), 2)
+            self.assertEqual(len(table.rows[0].columns), 3)
+            self.assertEqual(table.rows[0].columns[0].content, "Column 1")
+            self.assertEqual(table.rows[0].columns[1].content, "Column 2")
+            self.assertEqual(table.rows[0].columns[2].content, "Column 3")
 
 
 
