@@ -1,0 +1,16 @@
+import enum
+
+
+class TypeOfResults(enum):
+    integer_type = 0
+    floating_point_type = 1
+    string_type = 2
+    boolean_type = 3
+    invalid_type = 4
+
+class Script():
+    def __init__(self):
+        self.src = ""
+        self.variables = {}
+        self.functions = {}
+        
