@@ -6,6 +6,8 @@ name = "pypi"
 [packages]
 httpx = "*"
 textual-dev = "*"
+flask = "*"
+jinja2 = "*"
 
 [dev-packages]
 

@@ -39,18 +39,10 @@
   </script>
 </head>
 <body>
-
-  <div id="card1" class="card">
-    <h1>Welcome</h1>
-    <p>Welcome to our service.</p>
-    <a href="#card2" onclick="showCard('card2'); return false;">Next</a>
+  {% for card in document.cards %}
+  <div id="{{card.id}}" class="card">
+    {{ card.contentsHtmlText }}
   </div>
-
-  <div id="card2" class="card">
-    <h1>Details</h1>
-    <p>Enter your details here.</p>
-    <a href="#card1" onclick="showCard('card1'); return false;">Back</a>
-  </div>
-
+  {% endfor %}
 </body>
 </html>
