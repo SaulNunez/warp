@@ -1,18 +1,16 @@
 import unittest
-import xml
 
-from wap.representation.html.text import BigTextHtmlElement, BoldTextHtmlElement, ItalicTextElement, ModeTypes, ParagraphHtmlElement, SmallTextHtmlElement, StrongTextHtmlElement, UnderlineTextElement
-from wap.wap import WMLParser
+from wap.representation.html.text import BigTextHtmlElement, \
+    BoldTextHtmlElement, ItalicTextElement, ModeTypes, ParagraphHtmlElement, \
+        SmallTextHtmlElement, StrongTextHtmlElement, UnderlineTextElement
+from warp import parse_from_file
 
 
 class TestMarkupParsing(unittest.TestCase):
     def test_minimal_page(self):
         with open('./tests/example.wml', 'r') as file:
-            parser = xml.sax.make_parser()
-            handler = WMLParser()
-            parser.setContentHandler(handler)
-            parser.parse(file)
-            card = handler.data.findCardById("carta1")
+            deck = parse_from_file(file)
+            card = deck.findCardById("carta1")
             self.assertIsNotNone(card)
             # Assert card values
             self.assertEqual(card.id, "carta1")
@@ -26,11 +24,8 @@ class TestMarkupParsing(unittest.TestCase):
 
     def test_text_styling_page(self):
         with open('./tests/text_styles.wml', 'r') as file:
-            parser = xml.sax.make_parser()
-            handler = WMLParser()
-            parser.setContentHandler(handler)
-            parser.parse(file)
-            card = handler.data.findCardById("card1")
+            deck = parse_from_file(file)
+            card = deck.findCardById("card1")
             self.assertIsNotNone(card)
             self.assertEqual(card.title, "Text styles")
             self.assertEqual(len(card.children), 1)
@@ -48,11 +43,8 @@ class TestMarkupParsing(unittest.TestCase):
     
     def test_table_parsing(self):
         with open('./tests/table.wml', 'r') as file:
-            parser = xml.sax.make_parser()
-            handler = WMLParser()
-            parser.setContentHandler(handler)
-            parser.parse(file)
-            card = handler.data.findCardById("card_table")
+            deck = parse_from_file(file)
+            card = deck.findCardById("card_table")
             self.assertIsNotNone(card)
             self.assertEqual(len(card.children), 1)
             paragraph = card.children[0]
