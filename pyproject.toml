@@ -11,3 +11,6 @@ authors = [
   {name = "Saul Nunez", email = "saul.nunez99@gmail.com"},
 ]
 readme = "README.md"
+
+[tool.setuptools.packages.find]
+where = ["."]
