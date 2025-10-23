@@ -17,7 +17,8 @@ class TableRow(WMLElement):
         return ",".join([str(col) for col in self.columns])
 
     def __repr__(self):
-        return f"TableRow({",".join([str(col) for col in self.columns])})"
+        row_contents = ",".join([str(col) for col in self.columns])
+        return f"TableRow({row_contents})"
     
 
 class ColumnAlignment(StrEnum):
