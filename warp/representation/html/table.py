@@ -46,4 +46,5 @@ class TableElement(WMLElement):
         return "\n".join([str(row) for row in self.rows])
 
     def __repr__(self):
-        return f"Table({'\n'.join([str(row) for row in self.rows])})"
+        row_contents = '\n'.join([str(row) for row in self.rows])
+        return f"Table({row_contents})"
