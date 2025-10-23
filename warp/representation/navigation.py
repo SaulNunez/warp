@@ -1,8 +1,8 @@
 from enum import StrEnum
 from typing import List, TypedDict, Union
 
-from wap.representation.html.text import TextContent
-from wap.representation.variables import SetVarElement
+from warp.representation.html.text import TextContent
+from warp.representation.variables import SetVarElement
 
 class OnPick():
     pass

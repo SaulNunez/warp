@@ -1,9 +1,9 @@
 import unittest
 
-from wap.representation.html.text import BigTextHtmlElement, \
+from warp.representation.html.text import BigTextHtmlElement, \
     BoldTextHtmlElement, ItalicTextElement, ModeTypes, ParagraphHtmlElement, \
         SmallTextHtmlElement, StrongTextHtmlElement, UnderlineTextElement
-from warp import parse_from_file
+from warp.wml import parse_from_file
 
 
 class TestMarkupParsing(unittest.TestCase):

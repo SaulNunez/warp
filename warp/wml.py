@@ -1,12 +1,28 @@
+import xml
 from xml.sax import ContentHandler
+from typing import TextIO
 
-from wap.representation.html.table import TableColumn, TableElement, TableRow
-from wap.representation.html.text import AHtmlElement, BigTextHtmlElement, BoldTextHtmlElement, \
+from warp.representation.html.table import TableColumn, TableElement, TableRow
+from warp.representation.html.text import AHtmlElement, BigTextHtmlElement, BoldTextHtmlElement, \
     ItalicTextElement, ParagraphHtmlElement, SmallTextHtmlElement, StrongTextHtmlElement, \
     TextContent, UnderlineTextElement
-from wap.representation.markup import Card, Deck, WMLElement
-from wap.representation.navigation import AnchorElement, GoElement, NoOpElement, \
+from warp.representation.markup import Card, Deck, WMLElement
+from warp.representation.navigation import AnchorElement, GoElement, NoOpElement, \
     PrevElement, RefreshElement
+
+def parse_from_file(file: TextIO) -> Deck:
+    parser = xml.sax.make_parser()
+    handler = WMLParser()
+    parser.setContentHandler(handler)
+    parser.parse(file)
+    return handler.data
+
+def parse_from_string(contents: str) -> Deck:
+    parser = xml.sax.make_parser()
+    handler = WMLParser()
+    parser.setContentHandler(handler)
+    parser.parseString(contents)
+    return handler.data
 
 
 class WMLParser(ContentHandler):

@@ -1,8 +1,8 @@
 from enum import StrEnum
 from typing import List
 
-from wap.representation.html.text import ParagraphHtmlElement, TextContent
-from wap.representation.markup import WMLElement
+from warp.representation.html.text import ParagraphHtmlElement, TextContent
+from warp.representation.markup import WMLElement
 
 
 class TableColumn(TextContent):

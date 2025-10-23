@@ -1,6 +1,6 @@
 from enum import StrEnum
 from typing import List, Union
-from wap.representation.markup import Card, HtmlElement
+from warp.representation.markup import Card, HtmlElement
 
 class TextContent(HtmlElement):
     def __init__(self, parent, content: str = ""):
