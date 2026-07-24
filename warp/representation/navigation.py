@@ -41,8 +41,9 @@ class NoOpElement():
     def activate(self):
         pass
 
-class AnchorElement(TypedDict):
-    children:  List[Union[TextContent, GoElement, PrevElement, RefreshElement]]
+class AnchorElement:
+    def __init__(self):
+        self.children: List[Union[TextContent, GoElement, PrevElement, RefreshElement]] = []
 
 class EventType(StrEnum):
     """

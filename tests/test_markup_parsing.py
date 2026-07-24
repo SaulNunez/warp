@@ -56,5 +56,26 @@ class TestMarkupParsing(unittest.TestCase):
             self.assertEqual(table.rows[0].columns[1].content, "Column 2")
             self.assertEqual(table.rows[0].columns[2].content, "Column 3")
 
+    def test_frogfind_wml_parsing(self):
+        import urllib.request
+        from warp.wml import parse_from_string
+
+        req = urllib.request.Request(
+            'http://frogfind.com',
+            headers={'Accept': 'text/vnd.wap.wml'}
+        )
+        with urllib.request.urlopen(req) as response:
+            content = response.read().decode('utf-8')
+
+        deck = parse_from_string(content)
+        self.assertIsNotNone(deck)
+        self.assertGreater(len(deck.cards), 0)
+
+        card = deck.findCardById("frogfind")
+        self.assertIsNotNone(card)
+        self.assertEqual(card.id, "frogfind")
+        self.assertEqual(card.title, "FrogFind!")
+
+
 
 

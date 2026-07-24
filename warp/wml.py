@@ -18,10 +18,8 @@ def parse_from_file(file: TextIO) -> Deck:
     return handler.data
 
 def parse_from_string(contents: str) -> Deck:
-    parser = xml.sax.make_parser()
     handler = WMLParser()
-    parser.setContentHandler(handler)
-    parser.parseString(contents)
+    xml.sax.parseString(contents, handler)
     return handler.data
 
 
@@ -110,7 +108,7 @@ class WMLParser(ContentHandler):
 
     def _process_go_node(self, attrs, parent: AnchorElement):
         if "href" in attrs:
-            element = GoElement(attrs["href"], parent=parent)
+            element = GoElement(attrs["href"])
             if "method" in attrs:
                 element.method_from_str(attrs["method"])
         else:
