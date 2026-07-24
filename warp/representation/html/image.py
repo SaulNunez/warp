@@ -1,5 +1,5 @@
 from enum import Enum, StrEnum
-from wap.representation.markup import HtmlElement
+from warp.representation.markup import HtmlElement
 
 class ImgAlignTypes(StrEnum):
     top = "top"
