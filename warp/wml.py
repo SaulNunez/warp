@@ -6,6 +6,7 @@ from warp.representation.html.table import TableColumn, TableElement, TableRow
 from warp.representation.html.text import AHtmlElement, BigTextHtmlElement, BoldTextHtmlElement, \
     ItalicTextElement, ParagraphHtmlElement, SmallTextHtmlElement, StrongTextHtmlElement, \
     TextContent, UnderlineTextElement
+from warp.representation.input import Input
 from warp.representation.markup import Card, Deck, WMLElement
 from warp.representation.navigation import AnchorElement, GoElement, NoOpElement, \
     PrevElement, RefreshElement
@@ -48,7 +49,8 @@ class WMLParser(ContentHandler):
                 self._paragraph_element = self._current_node_rep
             case "a":
                 if self._paragraph_element and self.inner_text:
-                    self._current_node_rep.children.append(self.inner_text)
+                    self._paragraph_element.children.append(self.inner_text)
+                    self.inner_text = ""
                 self._current_node_rep = self._process_a_node(self._paragraph_element, attrs)
                 if self._paragraph_element:
                     self._paragraph_element.children.append(self._current_node_rep)
@@ -67,9 +69,9 @@ class WMLParser(ContentHandler):
                     self._table_element.rows[-1].columns.append(column)
                     self._current_node_rep = column
             case "strong" | "u" | "b" | "i" | "big" | "small":
-                if self._paragraph_element and self.inner_text:
-                    self._current_node_rep.children.append(self.inner_text)
-                    self.inner_text = ""
+                if self._paragraph_element and self.inner_text.strip():
+                    self._paragraph_element.children.append(self.inner_text.strip())
+                self.inner_text = ""
 
                 if name == "strong":
                     self._current_node_rep = StrongTextHtmlElement(self._paragraph_element)
@@ -86,17 +88,30 @@ class WMLParser(ContentHandler):
 
                 if self._paragraph_element:
                     self._paragraph_element.children.append(self._current_node_rep)
+            case "input":
+                wml_input = Input(name=attrs.get("name", "input"), size=int(attrs.get("size", -1)), format=attrs.get("format", "*"))
+                if self._paragraph_element:
+                    self._paragraph_element.children.append(wml_input)
             case "anchor":
-                self._current_node_rep = AnchorElement()
+                if self._paragraph_element and self.inner_text.strip():
+                    self._paragraph_element.children.append(self.inner_text.strip())
+                self.inner_text = ""
+                anchor = AnchorElement()
+                self._current_node_rep = anchor
+                if self._paragraph_element:
+                    self._paragraph_element.children.append(anchor)
             case "go":
                 if isinstance(self._current_node_rep, AnchorElement):
-                    self._process_go_node(attrs, self._current_node_rep)
+                    go_elem = self._process_go_node(attrs, self._current_node_rep)
+                    self._current_node_rep.children.append(go_elem)
             case "prev":
                 if isinstance(self._current_node_rep, AnchorElement):
-                    self._process_prev_node(attrs, self._current_node_rep)
+                    prev_elem = self._process_prev_node(self._current_node_rep)
+                    self._current_node_rep.children.append(prev_elem)
             case "refresh":
                 if isinstance(self._current_node_rep, AnchorElement):
-                    self._process_go_node(attrs, self._current_node_rep)
+                    refresh_elem = self._process_refresh_node(self._current_node_rep)
+                    self._current_node_rep.children.append(refresh_elem)
 
     def _process_paragraph(self, attrs, parent: Card):
         element = ParagraphHtmlElement(parent=parent)
@@ -116,10 +131,10 @@ class WMLParser(ContentHandler):
         return element
     
     def _process_prev_node(self, parent: AnchorElement):
-        return PrevElement(parent=parent)
+        return PrevElement()
     
     def _process_refresh_node(self, parent: AnchorElement):
-        return RefreshElement(parent=parent)
+        return RefreshElement(None)
     
     def _process_table_column(self, parent: TableRow):
         return TableColumn(parent=parent)
@@ -134,22 +149,34 @@ class WMLParser(ContentHandler):
         return AHtmlElement(attrs.get("href", ""), parent=parent)
 
     def endElement(self, name):
-        if self.current_element == name and self.inner_text:
-            if self.current_element == "card":
-                self._current_card = None
-            elif isinstance(self._current_node_rep, TextContent):
-                self._current_node_rep.content = self.inner_text
-            elif self._table_element:
-                self._table_element = None
+        if self.inner_text:
+            text = self.inner_text.strip()
+            if text:
+                if isinstance(self._current_node_rep, TextContent):
+                    self._current_node_rep.content = text
+                elif isinstance(self._current_node_rep, AnchorElement):
+                    self._current_node_rep.children.append(text)
+                elif self._paragraph_element and name == "p":
+                    self._paragraph_element.children.append(text)
 
-            if name == "p":
-                self._paragraph_element = None
-            elif name == "wml":
-                self._current_node_rep = None
+        if isinstance(self._current_node_rep, TextContent):
+            self._current_node_rep = self._paragraph_element
+
+        if name == "card":
+            self._current_card = None
+        elif name == "p":
+            self._paragraph_element = None
+        elif name == "table":
+            self._table_element = None
+        elif name == "anchor":
+            if self._paragraph_element:
+                self._current_node_rep = self._paragraph_element
+        elif name == "wml":
+            self._current_node_rep = None
+
         self.inner_text = ""
         self.current_element = ""
 
     def characters(self, content):
-        if self.current_element:
-            self.inner_text += content.strip()
+        self.inner_text += content
 
