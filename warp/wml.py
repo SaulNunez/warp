@@ -2,6 +2,7 @@ import xml
 from xml.sax import ContentHandler
 from typing import TextIO
 
+from warp.representation.html.image import Image, ImgAlignTypes, Measurement
 from warp.representation.html.table import TableColumn, TableElement, TableRow
 from warp.representation.html.text import AHtmlElement, BigTextHtmlElement, BoldTextHtmlElement, \
     ItalicTextElement, ParagraphHtmlElement, SmallTextHtmlElement, StrongTextHtmlElement, \
@@ -121,6 +122,25 @@ class WMLParser(ContentHandler):
                 if isinstance(self._current_node_rep, AnchorElement):
                     refresh_elem = self._process_refresh_node(self._current_node_rep)
                     self._current_node_rep.children.append(refresh_elem)
+            case "img":
+                align_str = attrs.get("align", "top")
+                align_val = getattr(ImgAlignTypes, align_str, ImgAlignTypes.top)
+                img_kwargs = {
+                    "src": attrs.get("src", ""),
+                    "localsrc": attrs.get("localsrc", ""),
+                    "alt": attrs.get("alt", ""),
+                    "align": align_val,
+                    "height": Measurement(attrs.get("height", "0")),
+                    "hspace": Measurement(attrs.get("hspace", "0")),
+                    "vspace": Measurement(attrs.get("vspace", "0")),
+                }
+                if "width" in attrs:
+                    img_kwargs["width"] = Measurement(attrs["width"])
+                img_elem = Image(**img_kwargs)
+                if self._paragraph_element:
+                    self._paragraph_element.children.append(img_elem)
+
+
 
     def _process_paragraph(self, attrs, parent: Card):
         element = ParagraphHtmlElement(parent=parent)
