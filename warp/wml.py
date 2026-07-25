@@ -42,7 +42,9 @@ class WMLParser(ContentHandler):
         self.current_element = name
         match name:
             case "card":
-                self._current_card = Card(attrs["id"], attrs["title"])
+                card_id = attrs.get("id", "card")
+                card_title = attrs.get("title", "")
+                self._current_card = Card(card_id, card_title)
                 self.data.cards.append(self._current_card)
             case "p":
                 self._current_node_rep = self._process_paragraph(attrs, self._current_card)
