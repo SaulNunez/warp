@@ -4,7 +4,7 @@ from typing import TextIO
 
 from warp.representation.html.image import Image, ImgAlignTypes, Measurement
 from warp.representation.html.table import TableColumn, TableElement, TableRow
-from warp.representation.html.text import AHtmlElement, BigTextHtmlElement, BoldTextHtmlElement, \
+from warp.representation.html.text import AHtmlElement, BigTextHtmlElement, BoldTextHtmlElement, BreakHtmlElement, \
     ItalicTextElement, ParagraphHtmlElement, SmallTextHtmlElement, StrongTextHtmlElement, \
     TextContent, UnderlineTextElement
 from warp.representation.input import Input
@@ -139,8 +139,9 @@ class WMLParser(ContentHandler):
                 img_elem = Image(**img_kwargs)
                 if self._paragraph_element:
                     self._paragraph_element.children.append(img_elem)
-
-
+            case "br":
+                if self._paragraph_element:
+                    self._paragraph_element.children.append(BreakHtmlElement(self._paragraph_element))
 
     def _process_paragraph(self, attrs, parent: Card):
         element = ParagraphHtmlElement(parent=parent)
