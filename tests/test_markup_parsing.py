@@ -76,6 +76,16 @@ class TestMarkupParsing(unittest.TestCase):
         self.assertEqual(card.id, "frogfind")
         self.assertEqual(card.title, "FrogFind!")
 
+        # Check postfield parsing inside anchor -> go
+        from warp.representation.navigation import AnchorElement, GoElement, PostFieldElement
+        paragraph = card.children[1]
+        anchor = [c for c in paragraph.children if isinstance(c, AnchorElement)][0]
+        go = [c for c in anchor.children if isinstance(c, GoElement)][0]
+        self.assertEqual(len(go.postfields), 1)
+        self.assertIsInstance(go.postfields[0], PostFieldElement)
+        self.assertEqual(go.postfields[0].name, "q")
+        self.assertEqual(go.postfields[0].value, "$(search)")
+
 
 
 

@@ -11,10 +11,16 @@ class HttpMethod(StrEnum):
     get = "get"
     post = "post"
 
+class PostFieldElement():
+    def __init__(self, name: str, value: str):
+        self.name = name
+        self.value = value
+
 class GoElement():
-    def __init__(self, href: str, method = HttpMethod.get):
+    def __init__(self, href: str, method = HttpMethod.get, postfields: List[PostFieldElement] = None):
         self.href = href
         self.method = method
+        self.postfields = postfields if postfields is not None else []
     
     def method_from_str(self, input: str):
         getattr(HttpMethod, input, HttpMethod.get)

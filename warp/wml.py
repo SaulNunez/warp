@@ -9,7 +9,7 @@ from warp.representation.html.text import AHtmlElement, BigTextHtmlElement, Bold
 from warp.representation.input import Input
 from warp.representation.markup import Card, Deck, WMLElement
 from warp.representation.navigation import AnchorElement, GoElement, NoOpElement, \
-    PrevElement, RefreshElement
+    PostFieldElement, PrevElement, RefreshElement
 
 def parse_from_file(file: TextIO) -> Deck:
     parser = xml.sax.make_parser()
@@ -33,6 +33,7 @@ class WMLParser(ContentHandler):
         # Add current node shorthand to prevent having to hunt down current node
         self._current_node_rep: WMLElement = None
         self._paragraph_element: ParagraphHtmlElement = None
+        self._current_go_element: GoElement = None
         self.current_element: str = ""
         self.inner_text: str = ""
         self._table_element: TableElement = None
@@ -103,7 +104,13 @@ class WMLParser(ContentHandler):
             case "go":
                 if isinstance(self._current_node_rep, AnchorElement):
                     go_elem = self._process_go_node(attrs, self._current_node_rep)
+                    if isinstance(go_elem, GoElement):
+                        self._current_go_element = go_elem
                     self._current_node_rep.children.append(go_elem)
+            case "postfield":
+                if self._current_go_element:
+                    postfield = PostFieldElement(name=attrs.get("name", ""), value=attrs.get("value", ""))
+                    self._current_go_element.postfields.append(postfield)
             case "prev":
                 if isinstance(self._current_node_rep, AnchorElement):
                     prev_elem = self._process_prev_node(self._current_node_rep)
@@ -168,6 +175,8 @@ class WMLParser(ContentHandler):
             self._paragraph_element = None
         elif name == "table":
             self._table_element = None
+        elif name == "go":
+            self._current_go_element = None
         elif name == "anchor":
             if self._paragraph_element:
                 self._current_node_rep = self._paragraph_element
